@@ -1,8 +1,21 @@
 import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, resolve } from 'path'
+import { generate } from './lib/generator.js'
+import { createRandomPicker } from './lib/random.js'
 
-const currentFileUrl = import.meta.url
-const corpusDataPath = resolve(dirname(fileURLToPath(currentFileUrl)), 'corpus/data.json')
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
-const data = readFileSync(corpusDataPath, { encoding: 'utf-8' })
+function loadCorpus(src) {
+    const path = resolve(__dirname, src)
+    const data = readFileSync(path, { encoding: 'utf-8' })
+    return JSON.parse(data)
+}
+
+const corpus = loadCorpus('corpus/data.json')
+
+const pickTitle = createRandomPicker(corpus.title)
+const title = pickTitle()
+
+const article = generate(title, { corpus })
+console.log(`${title}\n\n    ${article.join('\n  ')}`)
